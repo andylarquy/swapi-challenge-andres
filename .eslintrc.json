@@ -10,7 +10,6 @@
       "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
-      "semi":  ["error", "never"],
-     "max-len": ["warn", { "ignoreUrls": true }]
+      "semi":  ["error", "never"]
   }
   }
