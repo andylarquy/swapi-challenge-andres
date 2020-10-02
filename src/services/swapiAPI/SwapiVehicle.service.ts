@@ -1,6 +1,7 @@
 import { Vehicle } from "domain/Vehicle"
 import { SWAPI_SERVER_URL } from "./swapiServerConfig"
 import Axios from "axios"
+import {BadRequestResponse } from "http-errors-response-ts/lib"
 
 export async function getSwapiVehicleById(vehicleId: string): Promise<Vehicle | string> {
     try {
@@ -8,9 +9,9 @@ export async function getSwapiVehicleById(vehicleId: string): Promise<Vehicle | 
         return Vehicle.fromJson(vehicle.data)
     } catch (error) {
         if (error.response) {
-            throw (error.response.data)
+            throw error
         } else {
-            throw '{ "message":"There was an unknown error retrieving the vehicle"}'
+            throw new BadRequestResponse('{ "message":"There was an unknown error retrieving the vehicle"}')
         }
     }
 

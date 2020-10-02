@@ -1,3 +1,4 @@
+import { BadRequestResponse, InternalServerResponse } from "http-errors-response-ts/lib"
 import { DatabaseEntry, getDBConnection } from "./databaseConfig"
 
 export async function getVehicleCountById(vehicleId: string): Promise<number> {
@@ -23,24 +24,24 @@ export async function setDBVehicleCount(entry: DatabaseEntry): Promise<void> {
             { $set: entry },
             { upsert: true })
     } catch (error) {
-        throw Error('There was an error while writing in the database')
+        throw new InternalServerResponse('There was an error while writing in the database')
     }
 }
 
 export function validateDBVehicle(entry: DatabaseEntry): void {
     if (!entry._id) {
-        throw new Error("Missing property 'id'")
+        throw new BadRequestResponse("Missing property 'id'")
     }
 
     if (typeof (entry._id) === 'number') {
-        throw new Error('ID should be a string')
+        throw new BadRequestResponse('ID should be a string')
     }
 
     if (entry.count == null) {
-        throw new Error("Missing property 'count'")
+        throw new BadRequestResponse("Missing property 'count'")
     }
 
     if (entry.count < 0) {
-        throw new Error("Property 'count' can't be less than 0")
+        throw new BadRequestResponse("Property 'count' can't be less than 0")
     }
 }

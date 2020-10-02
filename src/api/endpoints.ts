@@ -8,48 +8,26 @@ export function index(): string {
 }
 
 export async function getVehicleById(vehicleId: string): Promise<Vehicle | string> {
-    let swapiVehicle: Vehicle
-    try {
-        // Obtain vehicle from swapi API
-        swapiVehicle = await getSwapiVehicleById(vehicleId) as Vehicle
 
-        // Obtain count from database
-        const vehicleCount = await getVehicleCountById(vehicleId)
+    // Obtain vehicle from swapi API
+    const swapiVehicle = await getSwapiVehicleById(vehicleId) as Vehicle
 
-        // Return the vehicle with the new property
-        return { ...swapiVehicle, count: vehicleCount }
+    // Obtain count from database
+    const vehicleCount = await getVehicleCountById(vehicleId)
 
-    } catch (error) {
-        // In case anything fails the errors are handled here
-        if (error instanceof Error) {
-            return JSON.parse(`{"message": "${error.message}"}`)
-        } else {
-            return JSON.parse(error)
-        }
-
-    }
+    // Return the vehicle with the new property
+    return { ...swapiVehicle, count: vehicleCount }
 }
 
-export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<string> {
-    try {
-        
-        validateDBVehicle(vehicleDB)
+export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<void> {
 
-        // Check if vehicle exists in swapi API
-        await getSwapiVehicleById(vehicleDB._id)
+    validateDBVehicle(vehicleDB)
 
-        // If it does we write in the database
-        setDBVehicleCount(vehicleDB)
-        // Return the vehicle with the new property
-        return JSON.parse(`{"message": "ok"}`)
+    // Check if vehicle exists in swapi API
+    await getSwapiVehicleById(vehicleDB._id)
 
-    } catch (error) {
-        // In case anything fails the errors are handled here
-        if (error instanceof Error) {
-            return JSON.parse(`{"message": "${error.message}"}`)
-        } else{
-            return error
-        }
+    // If it does we write in the database
+    setDBVehicleCount(vehicleDB)
+    // Return the vehicle with the new property
 
-    }
 }
