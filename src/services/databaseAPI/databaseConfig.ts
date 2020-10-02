@@ -1,6 +1,6 @@
 import { MongoClient, Db } from "mongodb"
 
-export type DatabaseEntry = { id: string, count: number }
+export type DatabaseEntry = { _id: string, count: number }
 const uri = "mongodb://localhost:27017/swapi"
 
 export async function getDBConnection(): Promise<Db> {

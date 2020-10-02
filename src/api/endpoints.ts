@@ -1,5 +1,6 @@
 import { Vehicle } from "domain/Vehicle"
-import { getVehicleCountById } from "services/databaseAPI/databaseVehicle.service"
+import { DatabaseEntry } from "services/databaseAPI/databaseConfig"
+import { getVehicleCountById, setDBVehicleCount, validateDBVehicle } from "services/databaseAPI/databaseVehicle.service"
 import { getSwapiVehicleById } from "services/swapiAPI/SwapiVehicle.service"
 
 export function index(): string {
@@ -21,8 +22,32 @@ export async function getVehicleById(vehicleId: string): Promise<Vehicle | strin
     } catch (error) {
         // In case anything fails the errors are handled here
         if (error instanceof Error) {
-            return `{"message": "${error.message}"}`
+            return JSON.parse(`{"message": "${error.message}"}`)
         } else {
+            return JSON.parse(error)
+        }
+
+    }
+}
+
+export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<string> {
+    try {
+        
+        validateDBVehicle(vehicleDB)
+
+        // Check if vehicle exists in swapi API
+        await getSwapiVehicleById(vehicleDB._id)
+
+        // If it does we write in the database
+        setDBVehicleCount(vehicleDB)
+        // Return the vehicle with the new property
+        return JSON.parse(`{"message": "ok"}`)
+
+    } catch (error) {
+        // In case anything fails the errors are handled here
+        if (error instanceof Error) {
+            return JSON.parse(`{"message": "${error.message}"}`)
+        } else{
             return error
         }
 
