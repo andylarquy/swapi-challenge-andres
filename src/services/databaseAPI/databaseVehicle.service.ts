@@ -28,12 +28,13 @@ export async function setDBVehicleCount(entry: DatabaseEntry): Promise<void> {
     }
 }
 
-export function validateDBVehicle(entry: DatabaseEntry): void {
+// TODO: Decide if it's worth reuse the logic between these two 
+export function validateDBVehicleToCreate(entry: DatabaseEntry): void {
     if (!entry._id) {
         throw new BadRequestResponse("Missing property 'id'")
     }
 
-    if (typeof (entry._id) === 'number') {
+    if (typeof (entry._id) !== 'string') {
         throw new BadRequestResponse('ID should be a string')
     }
 
@@ -41,7 +42,29 @@ export function validateDBVehicle(entry: DatabaseEntry): void {
         throw new BadRequestResponse("Missing property 'count'")
     }
 
+    if (typeof (entry.count) !== 'number') {
+        throw new BadRequestResponse("Property 'count' should be a number")
+    }
+
     if (entry.count < 0) {
         throw new BadRequestResponse("Property 'count' can't be less than 0")
+    }
+}
+
+export function validateDBVehicleToUpdate(entry: DatabaseEntry): void {
+    if (!entry._id) {
+        throw new BadRequestResponse("Missing property 'id'")
+    }
+
+    if (typeof (entry._id) !== 'string') {
+        throw new BadRequestResponse('ID should be a string')
+    }
+
+    if (entry.count == null) {
+        throw new BadRequestResponse("Missing property 'count'")
+    }
+
+    if (typeof (entry.count) !== 'number') {
+        throw new BadRequestResponse("Property 'count' should be a number")
     }
 }
