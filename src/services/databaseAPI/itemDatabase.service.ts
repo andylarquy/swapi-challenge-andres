@@ -1,25 +1,25 @@
 import { BadRequestResponse, InternalServerResponse } from "http-errors-response-ts/lib"
 import { DatabaseEntry, getDBConnection } from "./databaseConfig"
 
-export async function getStarshipCountById(starshipId: string): Promise<number> {
+export async function getItemCountById(itemId: string, itemType: string): Promise<number> {
 
     const db = await getDBConnection()
 
-    let starship = await db.collection('starship').findOne({ _id: starshipId })
+    let item = await db.collection(itemType).findOne({ _id: itemId })
 
-    if (starship === null) {
-        await setDBStarshipCount({ _id: starshipId, count: 0 })
-        starship = await db.collection('starship').findOne({ _id: starshipId })
+    if (item === null) {
+        await setDBItemCount({ _id: itemId, count: 0 }, itemType)
+        item = await db.collection(itemType).findOne({ _id: itemId })
     }
 
-    return starship.count
+    return item.count
 }
 
-export async function setDBStarshipCount(entry: DatabaseEntry): Promise<void> {
+export async function setDBItemCount(entry: DatabaseEntry, itemType: string): Promise<void> {
     const db = await getDBConnection()
 
     try {
-        await db.collection('starship').updateOne(
+        await db.collection(itemType).updateOne(
             { '_id': entry._id },
             { $set: entry },
             { upsert: true })
@@ -29,7 +29,7 @@ export async function setDBStarshipCount(entry: DatabaseEntry): Promise<void> {
 }
 
 // TODO: Decide if it's worth reuse the logic between these two 
-export function validateDBStarshipToCreate(entry: DatabaseEntry): void {
+export function validateDBItemToCreate(entry: DatabaseEntry): void {
     if (!entry._id) {
         throw new BadRequestResponse("Missing property 'id'")
     }
@@ -51,7 +51,7 @@ export function validateDBStarshipToCreate(entry: DatabaseEntry): void {
     }
 }
 
-export function validateDBStarshipToUpdate(entry: DatabaseEntry): void {
+export function validateDBItemToUpdate(entry: DatabaseEntry): void {
     if (!entry._id) {
         throw new BadRequestResponse("Missing property 'id'")
     }
