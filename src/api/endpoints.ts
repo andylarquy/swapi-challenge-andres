@@ -1,10 +1,9 @@
 import { BadRequestResponse } from "http-errors-response-ts/lib"
 import { DatabaseEntry } from "services/databaseAPI/databaseConfig"
 
-import { getSwapiVehicleById } from "services/swapiAPI/swapiVehicle.service"
-import { getSwapiStarshipById } from "services/swapiAPI/swapiStarship.service"
+import { getItemCountById, setDBItemCount, validateDBItemToCreate, validateDBItemToUpdate } from "services/databaseAPI/itemDatabase.service"
 
-import { getItemCountById, setDBItemCount, validateDBItemToCreate, validateDBItemToUpdate} from "services/databaseAPI/itemDatabase.service"
+import { getSwapiItemById } from "services/swapiAPI/swapiAPI.service"
 
 import { Vehicle } from "domain/Vehicle"
 import { Starship } from "domain/Starship"
@@ -18,7 +17,7 @@ export function index(): string {
 export async function getVehicleById(vehicleId: string): Promise<Vehicle | string> {
 
     // Obtain vehicle from swapi API
-    const swapiVehicle = await getSwapiVehicleById(vehicleId) as Vehicle
+    const swapiVehicle = await getSwapiItemById(vehicleId, Vehicle, 'vehicles') as Vehicle
 
     // Obtain count from database
     const vehicleCount = await getItemCountById(vehicleId, 'vehicles')
@@ -32,7 +31,7 @@ export async function updateVehicleCountById(vehicleDB: DatabaseEntry): Promise<
     validateDBItemToUpdate(vehicleDB)
 
     // Check if vehicle exists in swapi API
-    await getSwapiVehicleById(vehicleDB._id)
+    await getSwapiItemById(vehicleDB._id, Vehicle, 'vehicles') as Vehicle
 
     // If it does we check if it is possible to update the count value
     const currentVehicleCount = await getItemCountById(vehicleDB._id, 'vehicles')
@@ -52,7 +51,8 @@ export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<voi
     validateDBItemToCreate(vehicleDB)
 
     // Check if vehicle exists in swapi API
-    await getSwapiVehicleById(vehicleDB._id)
+    await getSwapiItemById(vehicleDB._id, Vehicle, 'vehicles') as Vehicle
+
 
     // If it does we write in the database
     setDBItemCount(vehicleDB, 'vehicles')
@@ -63,7 +63,7 @@ export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<voi
 export async function getStarshipById(starshipId: string): Promise<Starship | string> {
 
     // Obtain starship from swapi API
-    const swapiStarship = await getSwapiStarshipById(starshipId) as Starship
+    const swapiStarship = await getSwapiItemById(starshipId, Starship, 'starships') as Starship
 
     // Obtain count from database
     const starhsipCount = await getItemCountById(starshipId, 'starships')
@@ -77,7 +77,7 @@ export async function updateStarshipCountById(starshipDB: DatabaseEntry): Promis
     validateDBItemToUpdate(starshipDB)
 
     // Check if starship exists in swapi API
-    await getSwapiStarshipById(starshipDB._id)
+    await getSwapiItemById(starshipDB._id, Starship, 'starships') as Starship
 
     // If it does we check if it is possible to update the count value
     const currentStarshipCount = await getItemCountById(starshipDB._id, 'starships')
@@ -97,9 +97,9 @@ export async function setStarshipCountById(starshipDB: DatabaseEntry): Promise<v
     validateDBItemToCreate(starshipDB)
 
     // Check if starship exists in swapi API
-    await getSwapiStarshipById(starshipDB._id)
+    await getSwapiItemById(starshipDB._id, Starship, 'starships') as Starship
+
 
     // If it does we write in the database
     setDBItemCount(starshipDB, 'starships')
 }
-
