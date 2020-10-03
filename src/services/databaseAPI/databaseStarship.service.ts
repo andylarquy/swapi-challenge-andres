@@ -1,0 +1,70 @@
+import { BadRequestResponse, InternalServerResponse } from "http-errors-response-ts/lib"
+import { DatabaseEntry, getDBConnection } from "./databaseConfig"
+
+export async function getStarshipCountById(starshipId: string): Promise<number> {
+
+    const db = await getDBConnection()
+
+    let starship = await db.collection('starship').findOne({ _id: starshipId })
+
+    if (starship === null) {
+        await setDBStarshipCount({ _id: starshipId, count: 0 })
+        starship = await db.collection('starship').findOne({ _id: starshipId })
+    }
+
+    return starship.count
+}
+
+export async function setDBStarshipCount(entry: DatabaseEntry): Promise<void> {
+    const db = await getDBConnection()
+
+    try {
+        await db.collection('starship').updateOne(
+            { '_id': entry._id },
+            { $set: entry },
+            { upsert: true })
+    } catch (error) {
+        throw new InternalServerResponse('There was an error while writing in the database')
+    }
+}
+
+// TODO: Decide if it's worth reuse the logic between these two 
+export function validateDBStarshipToCreate(entry: DatabaseEntry): void {
+    if (!entry._id) {
+        throw new BadRequestResponse("Missing property 'id'")
+    }
+
+    if (typeof (entry._id) !== 'string') {
+        throw new BadRequestResponse('ID should be a string')
+    }
+
+    if (entry.count == null) {
+        throw new BadRequestResponse("Missing property 'count'")
+    }
+
+    if (typeof (entry.count) !== 'number') {
+        throw new BadRequestResponse("Property 'count' should be a number")
+    }
+
+    if (entry.count < 0) {
+        throw new BadRequestResponse("Property 'count' can't be less than 0")
+    }
+}
+
+export function validateDBStarshipToUpdate(entry: DatabaseEntry): void {
+    if (!entry._id) {
+        throw new BadRequestResponse("Missing property 'id'")
+    }
+
+    if (typeof (entry._id) !== 'string') {
+        throw new BadRequestResponse('ID should be a string')
+    }
+
+    if (entry.count == null) {
+        throw new BadRequestResponse("Missing property 'count'")
+    }
+
+    if (typeof (entry.count) !== 'number') {
+        throw new BadRequestResponse("Property 'count' should be a number")
+    }
+}
