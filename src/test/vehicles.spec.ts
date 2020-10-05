@@ -2,7 +2,7 @@ import request from 'supertest'
 import { app } from '../api/app'
 import moxios from 'moxios'
 import { vehicleData } from "./stubData"
-import { dropDatabaseMongoTestDB } from "./testDatabaseConfig"
+import { dropDatabaseMongoTestDB, mongoTestDBIsEmpty } from "./testDatabaseConfig"
 import { getItemCountById, setDBItemCount } from 'services/databaseAPI/itemDatabase.service'
 
 beforeEach(async () => {
@@ -25,6 +25,7 @@ describe('When you send a GET /vehicles/:vehicleID', () => {
         const result = await request(app).get('/vehicles/asd').send()
 
         expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     it('Should fail if the ID is not found', async () => {
@@ -32,6 +33,7 @@ describe('When you send a GET /vehicles/:vehicleID', () => {
         const result = await request(app).get('/vehicles/9').send()
 
         expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     describe("And you didn't set the DB counter for that vehicle", () => {
@@ -88,6 +90,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         const result = await request(app).put('/vehicles/9').send({ count: 5 })
 
         expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     it("Should fail if the ID is not numeric", async () => {
@@ -95,6 +98,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         const result = await request(app).put('/vehicles/asd').send({ count: 5 })
 
         expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     it("Should fail if count param is missing", async () => {
@@ -102,12 +106,14 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         const result = await request(app).put('/vehicles/8').send({})
 
         expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
     it("Should fail if count param not numeric", async () => {
         moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
         const result = await request(app).put('/vehicles/8').send({ count: '5' })
 
         expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     it("Should fail if count param is not an integer number", async () => {
@@ -115,6 +121,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         const result = await request(app).put('/vehicles/8').send({count: 2.5})
 
         expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
     describe("And you didn't set the DB counter for that vehicle", () => {

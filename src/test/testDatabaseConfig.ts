@@ -19,3 +19,8 @@ export async function dropDatabaseMongoTestDB(): Promise<void> {
     const db = await getTestDBConnection()
     await db.dropDatabase()
 }
+
+export async function mongoTestDBIsEmpty(): Promise<boolean>{
+    const db = await getTestDBConnection()
+    return (await db.listCollections().toArray()).length === 0
+}
