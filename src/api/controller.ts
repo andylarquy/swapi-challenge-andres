@@ -43,7 +43,7 @@ export async function updateVehicleCountById(vehicleDB: DatabaseEntry): Promise<
 
     // In case it is we update the value
     const newVehicleDB = { _id: vehicleDB._id, count: currentVehicleCount + vehicleDB.count }
-    setDBItemCount(newVehicleDB, 'vehicles')
+    await setDBItemCount(newVehicleDB, 'vehicles')
 }
 
 export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<void> {
@@ -55,7 +55,7 @@ export async function setVehicleCountById(vehicleDB: DatabaseEntry): Promise<voi
 
 
     // If it does we write in the database
-    setDBItemCount(vehicleDB, 'vehicles')
+    await setDBItemCount(vehicleDB, 'vehicles')
 }
 
 /* ** STARSHIPS ** */
@@ -89,7 +89,7 @@ export async function updateStarshipCountById(starshipDB: DatabaseEntry): Promis
 
     // In case it is we update the value
     const newStarshipDB = { _id: starshipDB._id, count: currentStarshipCount + starshipDB.count }
-    setDBItemCount(newStarshipDB, 'starships')
+    await setDBItemCount(newStarshipDB, 'starships')
 }
 
 export async function setStarshipCountById(starshipDB: DatabaseEntry): Promise<void> {
@@ -101,5 +101,5 @@ export async function setStarshipCountById(starshipDB: DatabaseEntry): Promise<v
 
 
     // If it does we write in the database
-    setDBItemCount(starshipDB, 'starships')
+    await setDBItemCount(starshipDB, 'starships')
 }
