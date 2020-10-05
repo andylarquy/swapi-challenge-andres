@@ -5,10 +5,15 @@ export async function getItemCountById(itemId: string, itemType: string): Promis
 
     const db = await getDBConnection()
 
+    // Retrieve from the DB the item with the given ID
     let item = await db.collection(itemType).findOne({ _id: itemId })
 
+    // In case no item is found 
     if (item === null) {
+         // We set it by default with the counter on 0 
         await setDBItemCount({ _id: itemId, count: 0 }, itemType)
+
+        //And get it once again
         item = await db.collection(itemType).findOne({ _id: itemId })
     }
 
