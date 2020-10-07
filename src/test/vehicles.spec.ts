@@ -177,8 +177,10 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         it("Should fail if we try to decrement 21", async () => {
             moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
             const result = await request(app).put('/vehicles/8').send({count: -21})
-    
+            const count = await getItemCountById('8', 'vehicles')
+
             expect(result.status).toBe(400)
+            expect(count).toBe(20)
         })
     })
 })
