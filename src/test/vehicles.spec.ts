@@ -108,7 +108,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         expect(result.status).toBe(400)
         expect(await mongoTestDBIsEmpty()).toBe(true)
     })
-    it("Should fail if count param not numeric", async () => {
+    it("Should fail if count param is not numeric", async () => {
         moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
         const result = await request(app).put('/vehicles/8').send({ count: '5' })
 
@@ -118,7 +118,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
 
     it("Should fail if count param is not an integer number", async () => {
         moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
-        const result = await request(app).put('/vehicles/8').send({count: 2.5})
+        const result = await request(app).put('/vehicles/8').send({ count: 2.5 })
 
         expect(result.status).toBe(400)
         expect(await mongoTestDBIsEmpty()).toBe(true)
@@ -176,11 +176,86 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
 
         it("Should fail if we try to decrement 21", async () => {
             moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
-            const result = await request(app).put('/vehicles/8').send({count: -21})
+            const result = await request(app).put('/vehicles/8').send({ count: -21 })
             const count = await getItemCountById('8', 'vehicles')
 
             expect(result.status).toBe(400)
             expect(count).toBe(20)
+        })
+    })
+})
+
+describe('When you send a POST /vehicles', () => {
+    beforeEach(async () => {
+        await dropDatabaseMongoTestDB()
+    })
+
+    it("Should fail if the ID is not found", async () => {
+        moxios.stubRequest(/vehicles.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/vehicles').send({ id: "9", count: 5 })
+
+        expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the ID is not a string", async () => {
+        moxios.stubRequest(/vehicles.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/vehicles').send({ id: 8, count: 5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it('Should fail if the ID is missing', async () => {
+        moxios.stubRequest(/vehicles.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/vehicles').send({ count: 5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is missing", async () => {
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        const result = await request(app).post('/vehicles').send({ id: "8" })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is not numeric", async () => {
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        const result = await request(app).post('/vehicles').send({ id: "8", count: "5" })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is not an integer number", async () => {
+        const result = await request(app).post('/vehicles').send({ id: "8", count: 2.5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is less than 0", async () => {
+        const result = await request(app).post('/vehicles').send({ id: "8", count: -10 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    describe('And it is well formatted', () => {
+        beforeEach(async () => {
+            await dropDatabaseMongoTestDB()
+        })
+
+        it("Should set the count value correctly", async () => {
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            const result = await request(app).post('/vehicles').send({ id: "8", count: 250 })
+            const count = await getItemCountById('8', 'vehicles')
+
+            expect(result.status).toBe(200)
+            expect(count).toBe(250)
         })
     })
 })
