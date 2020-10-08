@@ -58,7 +58,7 @@ describe('When you send a GET /starships/:starshipID', () => {
         })
     })
 
-    describe("And you did set 20 on the DB counter for that vehicle", () => {
+    describe("And you did set 20 on the DB counter for that starship", () => {
         beforeEach(async () => {
             await dropDatabaseMongoTestDB()
             await setDBItemCount({ _id: "5", count: 20 }, 'starships')
@@ -125,7 +125,7 @@ describe('When you send a PUT /starships/:starshipID', () => {
         expect(await mongoTestDBIsEmpty()).toBe(true)
     })
 
-    describe("And you didn't set the DB counter for that vehicle", () => {
+    describe("And you didn't set the DB counter for that starship", () => {
 
         beforeEach(async () => {
             await dropDatabaseMongoTestDB()
@@ -141,7 +141,7 @@ describe('When you send a PUT /starships/:starshipID', () => {
         })
     })
 
-    describe("And you did set 20 on the DB counter for that vehicle", () => {
+    describe("And you did set 20 on the DB counter for that starship", () => {
 
         beforeEach(async () => {
             await dropDatabaseMongoTestDB()
@@ -185,3 +185,80 @@ describe('When you send a PUT /starships/:starshipID', () => {
         })
     })
 })
+
+
+describe('When you send a POST /starships', () => {
+    beforeEach(async () => {
+        await dropDatabaseMongoTestDB()
+    })
+
+    it("Should fail if the ID is not found", async () => {
+        moxios.stubRequest(/starships.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/starships').send({ id: "0", count: 5 })
+
+        expect(result.status).toBe(404)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the ID is not a string", async () => {
+        moxios.stubRequest(/starships.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/starships').send({ id: 5, count: 5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it('Should fail if the ID is missing', async () => {
+        moxios.stubRequest(/starships.*/, { status: 404, response: '{"details": "Not Found"}' })
+        const result = await request(app).post('/starships').send({ count: 5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is missing", async () => {
+        moxios.stubRequest(/starships.*/, { status: 200, response: starshipData })
+        const result = await request(app).post('/starships').send({ id: "8" })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is not numeric", async () => {
+        moxios.stubRequest(/starships.*/, { status: 200, response: starshipData })
+        const result = await request(app).post('/starships').send({ id: "5", count: "5" })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is not an integer number", async () => {
+        const result = await request(app).post('/starships').send({ id: "5", count: 2.5 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    it("Should fail if the count property is less than 0", async () => {
+        const result = await request(app).post('/starships').send({ id: "5", count: -10 })
+
+        expect(result.status).toBe(400)
+        expect(await mongoTestDBIsEmpty()).toBe(true)
+    })
+
+    describe('And it is well formatted', () => {
+        beforeEach(async () => {
+            await dropDatabaseMongoTestDB()
+        })
+
+        it("Should set the count value correctly", async () => {
+            moxios.stubRequest(/starships.*/, { status: 200, response: starshipData })
+            const result = await request(app).post('/starships').send({ id: "5", count: 250 })
+            const count = await getItemCountById('5', 'starships')
+
+            expect(result.status).toBe(200)
+            expect(count).toBe(250)
+        })
+    })
+})
+
