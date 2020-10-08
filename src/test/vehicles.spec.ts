@@ -43,14 +43,14 @@ describe('When you send a GET /vehicles/:vehicleID', () => {
         })
 
         it('Should return a status 200 OK', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).get('/vehicles/8').send()
 
             expect(result.status).toBe(200)
         })
 
         it('The count should be 0', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData})
             const result = await request(app).get('/vehicles/8').send()
             const count = JSON.parse(result.text).count
 
@@ -65,13 +65,13 @@ describe('When you send a GET /vehicles/:vehicleID', () => {
         })
 
         it('Should return a status 200 OK', async () => {
-            moxios.stubRequest('https://swapi.dev/api/vehicles/8', { status: 200, response: vehicleData[0] })
+            moxios.stubRequest('https://swapi.dev/api/vehicles/8', { status: 200, response: vehicleData})
             const result = await request(app).get('/vehicles/8').send()
             expect(result.status).toBe(200)
         })
 
         it('The database count should be 20', async () => {
-            moxios.stubRequest('https://swapi.dev/api/vehicles/8', { status: 200, response: vehicleData[0] })
+            moxios.stubRequest('https://swapi.dev/api/vehicles/8', { status: 200, response: vehicleData})
             const result = await request(app).get('/vehicles/8').send()
             const count = JSON.parse(result.text).count
 
@@ -102,14 +102,14 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
     })
 
     it("Should fail if count param is missing", async () => {
-        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
         const result = await request(app).put('/vehicles/8').send({})
 
         expect(result.status).toBe(400)
         expect(await mongoTestDBIsEmpty()).toBe(true)
     })
     it("Should fail if count param is not numeric", async () => {
-        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
         const result = await request(app).put('/vehicles/8').send({ count: '5' })
 
         expect(result.status).toBe(400)
@@ -117,7 +117,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
     })
 
     it("Should fail if count param is not an integer number", async () => {
-        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
         const result = await request(app).put('/vehicles/8').send({ count: 2.5 })
 
         expect(result.status).toBe(400)
@@ -131,7 +131,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         })
 
         it('Should assume the counter by default starts at 0', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).put('/vehicles/8').send({ count: 0 })
             const count = await getItemCountById('8', 'vehicles')
 
@@ -148,7 +148,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         })
 
         it('Should increment correctly', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).put('/vehicles/8').send({ count: 5 })
             const count = await getItemCountById('8', 'vehicles')
 
@@ -157,7 +157,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         })
 
         it('Should decrement correctly', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).put('/vehicles/8').send({ count: -5 })
             const count = await getItemCountById('8', 'vehicles')
 
@@ -166,7 +166,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         })
 
         it('Should decrement correctly if we decrement 20', async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).put('/vehicles/8').send({ count: -20 })
             const count = await getItemCountById('8', 'vehicles')
 
@@ -175,7 +175,7 @@ describe('When you send a PUT /vehicles/:vehicleID', () => {
         })
 
         it("Should fail if we try to decrement 21", async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).put('/vehicles/8').send({ count: -21 })
             const count = await getItemCountById('8', 'vehicles')
 
@@ -215,7 +215,7 @@ describe('When you send a POST /vehicles', () => {
     })
 
     it("Should fail if the count property is missing", async () => {
-        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
         const result = await request(app).post('/vehicles').send({ id: "8" })
 
         expect(result.status).toBe(400)
@@ -223,7 +223,7 @@ describe('When you send a POST /vehicles', () => {
     })
 
     it("Should fail if the count property is not numeric", async () => {
-        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+        moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
         const result = await request(app).post('/vehicles').send({ id: "8", count: "5" })
 
         expect(result.status).toBe(400)
@@ -250,7 +250,7 @@ describe('When you send a POST /vehicles', () => {
         })
 
         it("Should set the count value correctly", async () => {
-            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData[0] })
+            moxios.stubRequest(/vehicles.*/, { status: 200, response: vehicleData })
             const result = await request(app).post('/vehicles').send({ id: "8", count: 250 })
             const count = await getItemCountById('8', 'vehicles')
 
